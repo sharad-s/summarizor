@@ -39,7 +39,7 @@ def summarize_text_with_openai_gpt(text):
     response = openai.ChatCompletion.create(
         model="gpt-4",
         messages=[
-            {"role": "system", "content": "You are a helpful assistant. You will be provided a chunk of text from audio transcription of a video. Break down the text into logical sections, then thoroughly summarize each section, capture all important points and nuances."},
+            {"role": "system", "content": "You are a helpful assistant. You will be provided a chunk of text from audio transcription of a video. Break down the text into logical sections, then thoroughly summarize each section, capture all important points and nuances. Reply in in proper markdown."},
             {"role": "user", "content": text}
         ]
     )

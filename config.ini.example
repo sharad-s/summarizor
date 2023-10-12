@@ -1,3 +1,4 @@
 [DEFAULT]
 APIKEY = sk-XXXYYYZZZZ
 FFMPEG_PATH = /path/to/ffmpeg
+YT_DLP_PATH = /path/to/yt-dlp

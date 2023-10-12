@@ -7,6 +7,8 @@ import configparser
 from video_processing import convert_video_to_audio
 from transcription import split_audio_into_chunks, transcribe_audio_with_openai_whisper_api
 from summarization import split_text_into_chunks, summarize_text_with_openai_gpt, tokens_in_text
+from video_download import is_youtube_url, download_youtube_audio, get_sanitized_filename_from_url
+
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s [%(levelname)s]: %(message)s')
 
@@ -18,6 +20,8 @@ APIKEY = config['DEFAULT']['APIKEY']
 FFMPEG_PATH = config['DEFAULT']['FFMPEG_PATH']
 
 # Main Function
+
+
 def main():
     parser = argparse.ArgumentParser(description="Full combined process")
     parser.add_argument("input_file", metavar="INPUT_VIDEO",
@@ -28,8 +32,14 @@ def main():
     output_directory = os.path.join("out", unique_id)
     os.makedirs(output_directory, exist_ok=True)
 
-    audio_file = convert_video_to_audio(args.input_file, output_directory)
+    # Process the video
+    if is_youtube_url(args.input_file):
+        audio_file = download_youtube_audio(args.input_file, output_directory)
+    else:
+        audio_file = convert_video_to_audio(args.input, output_directory)
 
+
+    print(audio_file)
     # Transcribe the audio
     chunks = split_audio_into_chunks(audio_file, unique_id)
     combined_transcription = ""
@@ -58,8 +68,11 @@ def main():
         current_chunk = summarized_chunks[i]
         combined_summary += ' '.join(current_chunk.split()[3:])
 
-    output_filename = os.path.join(
-        output_directory,  os.path.splitext(args.input_file)[0] + "_summary.txt")
+    if is_youtube_url(args.input_file):
+        sanitized_name = get_sanitized_filename_from_url(args.input_file)
+        output_filename = os.path.join(output_directory, sanitized_name + "_summary.txt")
+    else:
+        output_filename = os.path.join(output_directory, os.path.splitext(args.input_file)[0] + "_summary.txt")
 
     with open(output_filename, "w") as f:
         f.write(combined_summary)
